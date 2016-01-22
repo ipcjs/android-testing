@@ -22,8 +22,11 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
+import android.webkit.HttpAuthHandler;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
+import java.util.Arrays;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -37,7 +40,8 @@ public class WebViewActivity extends Activity {
     public static final String KEY_URL_TO_LOAD = "KEY_URL_TO_LOAD";
 
     @VisibleForTesting
-    protected static final String WEB_FORM_URL = "file:///android_asset/web_form.html";
+    protected static final String WEB_FORM_URL = "http://192.168.4.10:8080";
+//    protected static final String WEB_FORM_URL = "file:///android_asset/web_form.html";
 
     private WebView mWebView;
 
@@ -54,7 +58,23 @@ public class WebViewActivity extends Activity {
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 return false;
             }
+
+            @Override
+            public void onReceivedHttpAuthRequest(WebView view, HttpAuthHandler handler, String host, String realm) {
+                p(view, handler, host, realm);
+                if (host.equals("192.168.4.10")) {
+                    handler.proceed("jiangsongsong", "123456");
+                } else {
+                    super.onReceivedHttpAuthRequest(view, handler, host, realm);
+                }
+            }
         });
+    }
+
+    public static String p(Object... objs) {
+        String msg = Arrays.deepToString(objs);
+        System.out.println("ipcjs: " + msg);
+        return msg;
     }
 
     private static String urlFromIntent(@NonNull Intent intent) {

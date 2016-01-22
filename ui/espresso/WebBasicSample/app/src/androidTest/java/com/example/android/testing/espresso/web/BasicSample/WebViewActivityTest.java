@@ -16,12 +16,9 @@
 
 package com.example.android.testing.espresso.web.BasicSample;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import android.content.Intent;
+import android.support.test.espresso.web.model.Atom;
+import android.support.test.espresso.web.model.ElementReference;
 import android.support.test.espresso.web.sugar.Web;
 import android.support.test.espresso.web.webdriver.DriverAtoms;
 import android.support.test.espresso.web.webdriver.Locator;
@@ -31,17 +28,24 @@ import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.webkit.WebView;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import static android.support.test.espresso.web.assertion.WebViewAssertions.webMatches;
 import static android.support.test.espresso.web.sugar.Web.onWebView;
 import static android.support.test.espresso.web.webdriver.DriverAtoms.clearElement;
 import static android.support.test.espresso.web.webdriver.DriverAtoms.findElement;
 import static android.support.test.espresso.web.webdriver.DriverAtoms.getText;
 import static android.support.test.espresso.web.webdriver.DriverAtoms.webClick;
+import static com.example.android.testing.espresso.web.BasicSample.WebViewActivity.p;
 import static org.hamcrest.Matchers.containsString;
 
 /**
  * Basic sample that shows the usage of Espresso web showcasing {@link Web#onWebView()} API.
- * <p>
+ * <p/>
  * The sample has a simple layout which contains a single {@link WebView}. The HTML page displays
  * a form with an input tag and buttons to submit the form.
  */
@@ -55,10 +59,10 @@ public class WebViewActivityTest {
     /**
      * A JUnit {@link Rule @Rule} to launch your activity under test. This is a replacement
      * for {@link ActivityInstrumentationTestCase2}.
-     * <p>
+     * <p/>
      * Rules are interceptors which are executed for each test method and will run before
      * any of your setup code in the {@link Before @Before} method.
-     * <p>
+     * <p/>
      * {@link ActivityTestRule} will create and launch of the activity for you and also expose
      * the activity under test. To get a reference to the activity you can use
      * the {@link ActivityTestRule#getActivity()} method.
@@ -78,58 +82,72 @@ public class WebViewActivityTest {
     @Test
     public void typeTextInInput_clickButton_SubmitsForm() {
         // Lazily launch the Activity with a custom start Intent per test
-        mActivityRule.launchActivity(withWebFormIntent());
+        mActivityRule.launchActivity(withWebFormIntent(WebViewActivity.WEB_FORM_URL));
 
         // Selects the WebView in your layout. If you have multiple WebViews you can also use a
         // matcher to select a given WebView, onWebView(withId(R.id.web_view)).
         onWebView()
                 // Find the input element by ID
                 .withElement(findElement(Locator.ID, "text_input"))
-                // Clear previous input
+                        // Clear previous input
                 .perform(clearElement())
-                // Enter text into the input element
+                        // Enter text into the input element
                 .perform(DriverAtoms.webKeys(MACCHIATO))
-                // Find the submit button
+                        // Find the submit button
                 .withElement(findElement(Locator.ID, "submitBtn"))
-                // Simulate a click via javascript
+                        // Simulate a click via javascript
                 .perform(webClick())
-                // Find the response element by ID
+                        // Find the response element by ID
                 .withElement(findElement(Locator.ID, "response"))
-                // Verify that the response page contains the entered text
+                        // Verify that the response page contains the entered text
                 .check(webMatches(getText(), containsString(MACCHIATO)));
     }
 
     @Test
     public void typeTextInInput_clickButton_ChangesText() {
         // Lazily launch the Activity with a custom start Intent per test
-        mActivityRule.launchActivity(withWebFormIntent());
+        mActivityRule.launchActivity(withWebFormIntent(WebViewActivity.WEB_FORM_URL));
 
         // Selects the WebView in your layout. If you have multiple WebViews you can also use a
         // matcher to select a given WebView, onWebView(withId(R.id.web_view)).
         onWebView()
                 // Find the input element by ID
                 .withElement(findElement(Locator.ID, "text_input"))
-                // Clear previous input
+                        // Clear previous input
                 .perform(clearElement())
-                // Enter text into the input element
+                        // Enter text into the input element
                 .perform(DriverAtoms.webKeys(DOPPIO))
-                // Find the change text button.
+                        // Find the change text button.
                 .withElement(findElement(Locator.ID, "changeTextBtn"))
-                // Click on it.
+                        // Click on it.
                 .perform(webClick())
-                // Find the message element by ID
+                        // Find the message element by ID
                 .withElement(findElement(Locator.ID, "message"))
-                // Verify that the text is displayed
+                        // Verify that the text is displayed
                 .check(webMatches(getText(), containsString(DOPPIO)));
     }
 
     /**
      * @return start {@link Intent} for the simple web form URL.
      */
-    private static Intent withWebFormIntent() {
+    private static Intent withWebFormIntent(String url) {
         Intent basicFormIntent = new Intent();
-        basicFormIntent.putExtra(WebViewActivity.KEY_URL_TO_LOAD, WebViewActivity.WEB_FORM_URL);
+        basicFormIntent.putExtra(WebViewActivity.KEY_URL_TO_LOAD, url);
         return basicFormIntent;
+    }
+
+    @Test
+    public void web_gerrit() {
+        mActivityRule.launchActivity(withWebFormIntent("http://192.168.4.10:8080"));
+        Web.WebInteraction<Void> web = onWebView();
+        Atom<ElementReference> element = findElement(Locator.CLASS_NAME, "gwt-InlineHyperlink");
+        p(web, element);
+        web.withElement(element);
+        web.perform(webClick());
+    }
+    @After
+    public void sleep$_$() throws InterruptedException {
+        Thread.sleep(10 * 1000);
     }
 
 }
