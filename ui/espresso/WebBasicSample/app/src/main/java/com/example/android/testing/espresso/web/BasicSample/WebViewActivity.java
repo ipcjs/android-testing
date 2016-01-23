@@ -71,6 +71,15 @@ public class WebViewActivity extends Activity {
         });
     }
 
+    @Override
+    public void onBackPressed() {
+        if (mWebView.canGoBack()) {
+            mWebView.goBack();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
     public static String p(Object... objs) {
         String msg = Arrays.deepToString(objs);
         System.out.println("ipcjs: " + msg);

@@ -34,13 +34,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.List;
+
 import static android.support.test.espresso.web.assertion.WebViewAssertions.webMatches;
 import static android.support.test.espresso.web.sugar.Web.onWebView;
 import static android.support.test.espresso.web.webdriver.DriverAtoms.clearElement;
 import static android.support.test.espresso.web.webdriver.DriverAtoms.findElement;
+import static android.support.test.espresso.web.webdriver.DriverAtoms.findMultipleElements;
 import static android.support.test.espresso.web.webdriver.DriverAtoms.getText;
 import static android.support.test.espresso.web.webdriver.DriverAtoms.webClick;
-import static com.example.android.testing.espresso.web.BasicSample.WebViewActivity.p;
 import static org.hamcrest.Matchers.containsString;
 
 /**
@@ -139,12 +141,30 @@ public class WebViewActivityTest {
     @Test
     public void web_gerrit() {
         mActivityRule.launchActivity(withWebFormIntent("http://192.168.4.10:8080"));
-        Web.WebInteraction<Void> web = onWebView();
+        Atom<List<ElementReference>> atom = findMultipleElements(Locator.CLASS_NAME, "gwt-InlineHyperlink");
         Atom<ElementReference> element = findElement(Locator.CLASS_NAME, "gwt-InlineHyperlink");
-        p(web, element);
-        web.withElement(element);
-        web.perform(webClick());
+
+        onWebView()
+                .withElement(findElement(Locator.CLASS_NAME, "gwt-Label"))
+                .perform(webClick())
+                .withElement(findElement(Locator.CSS_SELECTOR, "a.menuItem.linkMenuItemNotLast"))
+                .perform(webClick())
+
+                .withElement(findElement(Locator.CSS_SELECTOR, "a.gwt-InlineHyperlink"))
+                .perform(webClick())
+
+                .withElement(findElement(Locator.LINK_TEXT, "Add Comment"))
+                .perform(webClick())
+
+        ;
+
+//        Web.WebInteraction<Void> web = onWebView();
+//        Atom<ElementReference> element = findElement(Locator.CLASS_NAME, "gwt-InlineHyperlink");
+//        p(web, element);
+//        web.withElement(element);
+//        web.perform(webClick());
     }
+
     @After
     public void sleep$_$() throws InterruptedException {
         Thread.sleep(10 * 1000);
